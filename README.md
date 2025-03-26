@@ -37,23 +37,11 @@ The system is integrated and visualized in CARLA via a unified Python interface 
 
 ## 📁 File Structure
 
-📦 ADAS_CARLA_Project/ │ ├── ADAS(ACC+LDW).py # Main script: LDW + ACC + HUD integration ├── acc_metrics_logger.py # Logging ACC data to CSV & plot to PNG/PDF ├── analyze_acc_metrics.py # Generate graphs & statistics from log ├── T_sensor_manager.py # Radar setup and smoothing ├── T_acc_control.py # ACC Controller with PID logic │ ├── acc_log.csv # Generated during simulation ├── acc_log_plot.png # Plot of ACC performance ├── acc_analysis_report_full.pdf # Full performance analysis │ ├── Final Senior Project.docx # Full report (in Thai) ├── เล่มโปรเจ็คล่าสุด.docx # Final formatted thesis ├── Open-source simulator for autonomous driving research.pdf └── บทความ Carla Simulation Project.docx
+📦 ADAS_CARLA_Project/ │ ├── ADAS(ACC+LDW).py # Main script: LDW + ACC + HUD integration ├── acc_metrics_logger.py # Logging ACC data to CSV & plot to PNG/PDF ├── T_sensor_manager.py # Radar setup and smoothing ├── T_acc_control.py # ACC Controller with PID logic │
 
 yaml
 Copy
 Edit
-
----
-
-## 📊 Performance Metrics & Evaluation
-
-- Speed following accuracy: > 90%
-- Reaction match rate: ~85%
-- Emergency brake count tracked
-- Lane detection success rate: 90–95% (under normal conditions)
-- Graphs include: ΔSpeed, Acceleration, Throttle/Brake overlay, Lane logs
-
-> See: `acc_analysis_report_full.pdf` & `acc_log_plot.png` for details
 
 ---
 
@@ -81,19 +69,13 @@ python ADAS(ACC+LDW).py
 Switch driving modes using your code’s key input (WASD or autopilot toggle).
 
 👨‍💻 Authors
-นายธนกร มงคลเดชสวัสดิ์ – [64090299]
 
-นางสาวภาณุมาศ ฤกษ์งาม – [64090327]
+นายธนกร มงคลเดชสวัสดิ์ – [64090299]
 
 นายวุฒิชัย อิ่มวงค์ – [64090330]
 
 Faculty of Logistics, Burapha University
 Academic Year 2567 (2024)
-
-📚 Acknowledgments
-Special thanks to:
-
-รองศาสตราจารย์ ดร.ณกร อินทร์พยุง (Project Advisor)
 
 CARLA Simulator Community & Open-source contributors
 
