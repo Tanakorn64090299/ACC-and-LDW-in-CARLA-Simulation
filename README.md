@@ -99,3 +99,9 @@ CARLA Simulator Community & Open-source contributors
 
 📄 License
 This project uses open-source components (CARLA, Python libraries). The custom logic is licensed under MIT. See LICENSE for details.
+
+yaml
+Copy
+Edit
+
+---
