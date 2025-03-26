@@ -39,6 +39,23 @@ The system is integrated and visualized in CARLA via a unified Python interface 
 
 📦 ADAS_CARLA_Project/ │ ├── ADAS(ACC+LDW).py # Main script: LDW + ACC + HUD integration ├── acc_metrics_logger.py # Logging ACC data to CSV & plot to PNG/PDF ├── T_sensor_manager.py # Radar setup and smoothing ├── T_acc_control.py # ACC Controller with PID logic │
 
+---
+## 🎬 Demo Videos
+
+### 🚗 1. ADAS Simulation: ACC + LDW + HUD
+[![Watch the demo](https://img.youtube.com/vi/XGa_XzYuVyA/maxresdefault.jpg)](https://youtu.be/XGa_XzYuVyA)
+
+---
+
+### 📈 2. ACC Logging & Performance Analysis
+[![Watch the demo](https://img.youtube.com/vi/IOnO5zjLFlw/maxresdefault.jpg)](https://youtu.be/IOnO5zjLFlw)
+
+---
+
+### 🧠 3. Lane Departure Warning (LDW) Visual Alert
+[![Watch the demo](https://img.youtube.com/vi/su1HLTpOqd8/maxresdefault.jpg)](https://youtu.be/su1HLTpOqd8)
+
+---
 yaml
 Copy
 Edit
