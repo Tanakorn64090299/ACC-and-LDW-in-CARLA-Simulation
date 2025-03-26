@@ -56,11 +56,6 @@ The system is integrated and visualized in CARLA via a unified Python interface 
 [![Watch the demo](https://img.youtube.com/vi/su1HLTpOqd8/maxresdefault.jpg)](https://youtu.be/su1HLTpOqd8)
 
 ---
-yaml
-Copy
-Edit
-
----
 
 ## 🧪 How to Run the Simulation
 
