@@ -82,9 +82,9 @@ Switch driving modes using your code’s key input (WASD or autopilot toggle).
 
 👨‍💻 Authors
 
-นายธนกร มงคลเดชสวัสดิ์ – [64090299]
+Tanakorn  Mongkondatsawat – [64090299]
 
-นายวุฒิชัย อิ่มวงค์ – [64090330]
+Wuttichi  Imwong – [64090330]
 
 Faculty of Logistics, Burapha University
 Academic Year 2567 (2024)
