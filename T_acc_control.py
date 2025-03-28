@@ -33,7 +33,6 @@ class ACCController:
         self.leader_velocity = leader_velocity
 
     def update(self):
-        """ ใช้ Radar ควบคุม Tesla """
         if self.radar_distance is None:
             print("⚠️ Radar Data is None → Reduce speed for safety.")
             self.follower.apply_control(carla.VehicleControl(throttle=0.0, brake=0.5))
@@ -66,7 +65,6 @@ class ACCController:
         return {"throttle": throttle, "brake": brake, "status": status}
 
 class PerformanceMetrics:
-    """ เก็บค่าการทำงานของ Tesla """
     def __init__(self):
         self.data = []
 
