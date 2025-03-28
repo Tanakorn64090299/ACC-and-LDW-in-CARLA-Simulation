@@ -345,7 +345,7 @@ def compute_waypoints(start_location, end_location):
     end_waypoint = map.get_waypoint(end_location, project_to_road=True, lane_type=carla.LaneType.Driving)
 
     if not start_waypoint or not end_waypoint:
-        print("⚠️ ไม่พบ Waypoint สำหรับเส้นทางที่เลือก")
+        print("⚠️ Waypoint not found for the selected route")
         return []
 
     waypoints = [start_waypoint]
@@ -356,7 +356,7 @@ def compute_waypoints(start_location, end_location):
         next_waypoints = current_waypoint.next(2.0)
 
         if not next_waypoints:
-            print("⚠️ ไม่มีเส้นทางถัดไป (Next Waypoint เป็น None)")
+            print("⚠️ There is no next waypoint (Next Waypoint is None)")
             break
         
         next_waypoint = next_waypoints[0]
@@ -364,7 +364,7 @@ def compute_waypoints(start_location, end_location):
         current_waypoint = next_waypoint
 
         if len(waypoints) > max_steps:
-            print("⚠️ จำนวน Waypoints เกินขีดจำกัด (อาจติดลูป)")
+            print("⚠️ The number of Waypoints exceeds the limit (may get stuck in a loop)")
             break
 
     return waypoints
@@ -461,12 +461,12 @@ def plot_ldw_log():
     import pandas as pd
 
     if not ldw_records:
-        print("⚠️ ไม่มีข้อมูล LDW สำหรับ plot")
+        print("⚠️ There is no LDW data for plot")
         return
 
     df = pd.DataFrame(ldw_records)
     df.to_csv("ldw_log.csv", index=False)
-    print("✅ บันทึก CSV LDW เป็น ldw_log.csv แล้ว")
+    print("✅ LDW CSV saved as ldw_log.csv.")
 
     plt.figure(figsize=(10, 4))
     plt.plot(df["time"], df["status"], drawstyle="steps-post", label="Lane Status")
@@ -478,7 +478,7 @@ def plot_ldw_log():
     plt.legend()
     plt.tight_layout()
     plt.savefig("ldw_status_plot.png")
-    print("✅ บันทึกกราฟ LDW เป็น ldw_status_plot.png แล้ว")
+    print("✅ Save the LDW graph as ldw_status_plot.png แล้ว")
     plt.show()
 
 
