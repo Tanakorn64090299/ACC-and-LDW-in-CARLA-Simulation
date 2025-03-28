@@ -4,7 +4,6 @@ import json
 import time
 
 class PIDController:
-    """ ควบคุม Throttle โดยใช้ PID """
     def __init__(self, kp, ki, kd):
         self.kp = kp
         self.ki = ki
@@ -20,7 +19,6 @@ class PIDController:
         return max(0.0, min(self.kp * error + self.ki * self.integral + self.kd * derivative, 1.0))
 
 class ACCController:
-    """ ควบคุม Adaptive Cruise Control ของ Tesla """
     def __init__(self, follower_vehicle, safe_distance=10.0, max_speed=22.2):
         self.follower = follower_vehicle
         self.pid = PIDController(kp=1.2, ki=0.08, kd=0.15)
@@ -31,14 +29,13 @@ class ACCController:
         self.metrics_logger = PerformanceMetrics()
 
     def update_radar_data(self, distance, leader_velocity):
-        """ อัปเดตข้อมูลจาก Radar """
         self.radar_distance = distance
         self.leader_velocity = leader_velocity
 
     def update(self):
         """ ใช้ Radar ควบคุม Tesla """
         if self.radar_distance is None:
-            print("⚠️ ไม่มีข้อมูลจาก Radar → ลดความเร็วเพื่อความปลอดภัย")
+            print("⚠️ Radar Data is None → Reduce speed for safety.")
             self.follower.apply_control(carla.VehicleControl(throttle=0.0, brake=0.5))
             return {"throttle": 0.0, "brake": 0.5, "status": "⚠️ No Radar Data"}
 
@@ -46,7 +43,6 @@ class ACCController:
         distance = self.radar_distance
         relative_speed = self.leader_velocity - follower_speed
 
-        # คำนวณ Safe Distance ตามกฎ 2 วินาที
         dynamic_safe_distance = max(10.0, follower_speed * 2.0)
 
         if distance < 5.5:
