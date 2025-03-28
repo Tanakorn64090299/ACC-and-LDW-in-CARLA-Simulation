@@ -18,25 +18,23 @@ class SensorManager:
         self.radar = self.world.spawn_actor(radar_bp, radar_transform, attach_to=self.vehicle)
         self.radar.listen(lambda data: self.process_radar_data(data))
 
-        # ✅ ตั้งค่าระยะเริ่มต้นให้ ACCController
         self.acc_controller.update_radar_data(10.0, 0.0)
 
     def process_radar_data(self, data):
-        """ กรองค่าที่ผิดปกติ และใช้ Median Filter ของ Radar """
         distances = []
         velocities = []
 
-        for detection in data:  # ✅ ใช้ data ตรงๆ แทน detected_points
+        for detection in data:
             if 0.5 <= detection.depth <= 50.0:
                 distances.append(detection.depth)
                 velocities.append(detection.velocity)
 
         if not distances:
-            print("⚠️ Radar ไม่พบระยะที่เชื่อถือได้")
+            print("⚠️ Radar cannot find a reliable range.")
             return  
 
         median_distance = float(np.median(distances))
-        median_velocity = float(np.median(velocities))  # ✅ ใช้ median filter สำหรับ leader_velocity
+        median_velocity = float(np.median(velocities))
 
         if len(self.radar_history) > 5:
             self.radar_history.pop(0)
@@ -44,7 +42,6 @@ class SensorManager:
 
         if len(self.radar_history) >= 3 and abs(self.radar_history[-1] - self.radar_history[-2]) > 10.0:
             self.radar_history[-1] = np.mean(self.radar_history[-3:])
-            print("🚨 Radar มีค่าผิดปกติ ใช้ค่าเฉลี่ยแทน")
+            print("🚨 The radar has abnormal values, Use the average instead")
 
-        # ✅ อัปเดต `leader_velocity` และ `distance` ไปที่ ACC Controller
         self.acc_controller.update_radar_data(self.radar_history[-1], median_velocity)
