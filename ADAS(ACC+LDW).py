@@ -66,7 +66,7 @@ from acc_metrics_logger import log_metrics, plot_acc_log
 from T_acc_control import ACCController
 from T_sensor_manager import SensorManager
 
-# === Enum สำหรับโหมดการขับขี่ ===
+
 class DriveMode(Enum):
     MANUAL = 1
     ACC = 2
@@ -98,9 +98,9 @@ vehicle_bp = blueprint_library.filter("model3")[0]
 spawn_point = world.get_map().get_spawn_points()[0]
 vehicle = world.try_spawn_actor(vehicle_bp, spawn_point)
 if not vehicle:
-    print("❌ Spawn รถไม่สำเร็จ")
+    print("❌ Spawn")
     sys.exit(1)
-print("✅ Spawn รถสำเร็จ")
+print("✅ Spawn")
 
 # === Setup ACC ===
 acc_controller = ACCController(vehicle)
@@ -167,7 +167,7 @@ def sliding_window_lane_detection(binary_warped):
         left_lane_inds.append(good_left_inds)
         right_lane_inds.append(good_right_inds)
 
-    # แก้ไข: ตรวจสอบว่า list ไม่ empty ก่อนใช้ np.concatenate
+
     left_lane_inds = np.concatenate(left_lane_inds) if len(left_lane_inds) > 0 else np.array([])
     right_lane_inds = np.concatenate(right_lane_inds) if len(right_lane_inds) > 0 else np.array([])
 
@@ -178,7 +178,6 @@ def sliding_window_lane_detection(binary_warped):
 
     left_fit, right_fit = None, None
 
-    # ป้องกันกรณีค่าเป็น empty ก่อนใช้ np.polyfit
     if len(leftx) > 0 and len(lefty) > 0:
         left_fit = np.polyfit(lefty, leftx, 2)
     if len(rightx) > 0 and len(righty) > 0:
@@ -186,12 +185,10 @@ def sliding_window_lane_detection(binary_warped):
 
     return left_fit, right_fit
 
-# === ฟังก์ชันสำหรับตรวจจับการเบี่ยงจากเลน (LDW) ===
 def detect_lane_departure(left_fit, right_fit, img_width):
     if left_fit is None or right_fit is None:
         return None
 
-    # คำนวณตำแหน่งที่กลางเลน
     midpoint = img_width // 2
     y_eval = 720
     left_x = left_fit[0]*y_eval**2 + left_fit[1]*y_eval + left_fit[2]
@@ -199,7 +196,6 @@ def detect_lane_departure(left_fit, right_fit, img_width):
     lane_center = (left_x + right_x) / 2
     deviation = midpoint - lane_center
 
-    # การเบี่ยงเบนที่ยอมรับได้
     threshold = 100
     return abs(deviation) < threshold
 
@@ -294,88 +290,71 @@ camera.listen(lambda image: process_image(image))
 
 # === Unified Control Function ===
 def lane_tracking():
-    # ใช้ภาพจากกล้องเพื่อตรวจจับเส้นเลน
-    frame = capture_frame()  # ฟังก์ชันที่ดึงภาพจากกล้อง
+    frame = capture_frame()
     binary_image = adaptive_preprocessing(frame)
     left_fit, right_fit = sliding_window_lane_detection(binary_image)
     
-    # ตรวจสอบการเบี่ยงจากเลน
     deviation = detect_lane_departure(left_fit, right_fit, frame.shape[1])
     
-    # คำนวณพวงมาลัย
     if deviation is not None and deviation > 100:
-        adjust_steering(left_fit, right_fit)  # ปรับพวงมาลัย
+        adjust_steering(left_fit, right_fit)
 
-# === ฟังก์ชันสำหรับการปรับพวงมาลัย Lane Keeping Assist (LKA) ===
 def lane_keeping_assist(left_fit, right_fit, frame, control):
     deviation = detect_lane_departure(left_fit, right_fit, frame.shape[1])
 
     if deviation is not None and deviation > 100:
-        # ปรับพวงมาลัยให้รถอยู่ในเลน
         steering_angle = calculate_steering_angle(left_fit, right_fit)
         control.steer = steering_angle
         vehicle.apply_control(control)
 
-# === ฟังก์ชันสำหรับคำนวณมุมพวงมาลัย ===
 def calculate_steering_angle(left_fit, right_fit):
     if left_fit and right_fit:
-        # คำนวณมุมที่เหมาะสมจากเส้นเลนที่ตรวจจับได้
         left_x = left_fit[0] * 720**2 + left_fit[1] * 720 + left_fit[2]
         right_x = right_fit[0] * 720**2 + right_fit[1] * 720 + right_fit[2]
         lane_center = (left_x + right_x) / 2
         midpoint = 1280 // 2
-        return (midpoint - lane_center) * 0.003  # ค่าปรับให้พวงมาลัยมีความไว
+        return (midpoint - lane_center) * 0.003
 
     return 0.0
 
 def radar_obstacle_detection():
     if detect_obstacles(vehicle.get_location()):
         control.throttle = 0.0
-        control.brake = 1.0  # หยุดรถ
+        control.brake = 1.0
         vehicle.apply_control(control)
 
-	
 
-
-# ✅ เปิดใช้งาน Traffic Manager และกำหนดค่า
 traffic_manager = client.get_trafficmanager()
 traffic_manager.set_global_distance_to_leading_vehicle(2.0)
 traffic_manager.set_synchronous_mode(True)
 
-# === ฟังก์ชัน Traffic Manager Control ===
 def traffic_manager_control(vehicle, route_waypoints, current_mode):
     if current_mode == DriveMode.AUTOPILOT:
-        # ใช้ Traffic Manager ในการควบคุมเส้นทาง
         vehicle.set_autopilot(True, traffic_manager.get_port())
         if route_waypoints:
             traffic_manager.set_path(vehicle, [wp.transform.location for wp in route_waypoints])
 
 
 def driver_monitoring():
-    # ตรวจจับพฤติกรรมผู้ขับขี่จากกล้อง
     if detect_driver_fatigue():
-        alert_driver()  # แจ้งเตือนเมื่อผู้ขับขี่ง่วงหรือละเลย
+        alert_driver()
 
-
-# ✅ คำนวณเส้นทางที่ใช้ Waypoints
 def compute_waypoints(start_location, end_location):
     map = world.get_map()
     start_waypoint = map.get_waypoint(start_location, project_to_road=True, lane_type=carla.LaneType.Driving)
     end_waypoint = map.get_waypoint(end_location, project_to_road=True, lane_type=carla.LaneType.Driving)
 
-    # 🔴 ตรวจสอบว่าได้ Waypoints หรือไม่
     if not start_waypoint or not end_waypoint:
         print("⚠️ ไม่พบ Waypoint สำหรับเส้นทางที่เลือก")
         return []
 
     waypoints = [start_waypoint]
     current_waypoint = start_waypoint
-    max_steps = 100  # ป้องกันลูปไม่สิ้นสุด
+    max_steps = 100
 
     while current_waypoint.transform.location.distance(end_waypoint.transform.location) > 5.0:
         next_waypoints = current_waypoint.next(2.0)
 
-        # 🔴 ตรวจสอบว่ามี Waypoints ถัดไปหรือไม่
         if not next_waypoints:
             print("⚠️ ไม่มีเส้นทางถัดไป (Next Waypoint เป็น None)")
             break
@@ -384,15 +363,12 @@ def compute_waypoints(start_location, end_location):
         waypoints.append(next_waypoint)
         current_waypoint = next_waypoint
 
-        # 🔴 ป้องกันการติดลูป
         if len(waypoints) > max_steps:
             print("⚠️ จำนวน Waypoints เกินขีดจำกัด (อาจติดลูป)")
             break
 
     return waypoints
 
-
-# === ฟังก์ชัน Radar Obstacle Detection ===
 def detect_obstacles(location):
     actors = world.get_actors().filter("vehicle.*")
     for actor in actors:
@@ -400,7 +376,6 @@ def detect_obstacles(location):
             return True
     return False
 
-# ฟังก์ชันอ่านการกดปุ่มเลี้ยว
 def get_steering_from_keys(keys):
     if keys[pygame.K_a]:
         return -0.5
@@ -408,7 +383,6 @@ def get_steering_from_keys(keys):
         return 0.5
     return 0.0
 
-# === การจัดการ Traffic Manager เพื่อให้ไม่ควบคุมความเร็วทั้งหมด ===
 def parse_events():
     global current_mode, route_waypoints
     keys = pygame.key.get_pressed()
@@ -476,8 +450,6 @@ def parse_events():
     return control, {"status": status}
 
 
-
-# ฟังก์ชันการสุ่มเป้าหมายและเส้นทาง
 def set_random_destination():
     global target_location, route_waypoints
     spawn_points = world.get_map().get_spawn_points()
@@ -496,7 +468,6 @@ def plot_ldw_log():
     df.to_csv("ldw_log.csv", index=False)
     print("✅ บันทึก CSV LDW เป็น ldw_log.csv แล้ว")
 
-    # สร้างกราฟ
     plt.figure(figsize=(10, 4))
     plt.plot(df["time"], df["status"], drawstyle="steps-post", label="Lane Status")
     plt.yticks([-1, 0, 1], ["Unknown", "Departure", "In Lane"])
@@ -509,7 +480,6 @@ def plot_ldw_log():
     plt.savefig("ldw_status_plot.png")
     print("✅ บันทึกกราฟ LDW เป็น ldw_status_plot.png แล้ว")
     plt.show()
-
 
 
 # === Main Loop ===
@@ -526,7 +496,6 @@ try:
         if current_mode in [DriveMode.MANUAL, DriveMode.ACC]:
             vehicle.apply_control(control)
 
-            # ✅ Logging จากค่าใน acc_status ที่ return มาจาก parse_events()
             velocity = vehicle.get_velocity()
             ego_speed = math.sqrt(velocity.x**2 + velocity.y**2 + velocity.z**2)
             distance = acc_status.get("distance", 0.0)
@@ -539,7 +508,6 @@ try:
                 brake=control.brake
             )
 
-        # HUD จะเรนเดอร์ใน process_image()
 
 finally:
     camera.destroy()
@@ -548,7 +516,7 @@ finally:
 
     try:
         plot_acc_log()
-        plot_ldw_log()  # ✅ เพิ่มฟังก์ชัน plot + save CSV สำหรับ LDW
-        print("📊 บันทึกกราฟทั้งหมดสำเร็จ")
+        plot_ldw_log()
+        print("📊 Finish")
     except Exception as e:
-        print(f"⚠️ ไม่สามารถแสดงหรือบันทึกกราฟได้: {e}")
+        print(f"⚠️ Fi: {e}")
