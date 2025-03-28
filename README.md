@@ -61,7 +61,7 @@ The system is integrated and visualized in CARLA via a unified Python interface 
 
 ### 🛠️ Prerequisites
 - CARLA Simulator (0.9.13+ recommended)
-- Python 3.8–3.10
+- Python 3.7-3.10
 - Required Python libraries:
   ```bash
   pip install pygame numpy opencv-python matplotlib pandas
