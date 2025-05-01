@@ -84,7 +84,7 @@ Switch driving modes using your code’s key input (WASD or autopilot toggle).
 
 Tanakorn  Mongkondatsawat – [64090299]
 
-Wuttichi  Imwong – [64090330]
+Wutthichai  Imwong – [64090330]
 
 Faculty of Logistics, Burapha University
 Academic Year 2567 (2024)
